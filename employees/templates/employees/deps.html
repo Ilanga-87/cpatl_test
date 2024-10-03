@@ -1,0 +1,78 @@
+{% extends 'employees/base.html' %}
+{% load mptt_tags %}
+{% block list %}
+
+<style>
+    .outer-list {
+        margin-top: 1rem;
+        padding-left: 3rem;
+        list-style-type: none;
+    }
+
+    .children {
+        list-style-type: none;
+        padding-left: 20px;
+    }
+
+    .toggle {
+        text-decoration: none;
+        color: #343a40;
+        display: flex;
+        align-items: center;
+    }
+
+    .toggle::after {
+        content: '▼';
+        margin-left: 10px;
+    }
+
+</style>
+
+<h1>Список работников</h1>
+
+<ul class="outer-list">
+    {% recursetree deps %}
+        <li>
+            <a class="toggle" data-bs-toggle="collapse" href="#node-{{ node.id }}" role="button" aria-expanded="false" aria-controls="node-{{ node.id }}" data-id="{{ node.id }}">
+                {{ node.name }}
+            </a>
+            {% if not node.is_leaf_node %}
+                <ul id="node-{{ node.id }}" class="collapse children">
+                    {{ children }}
+                </ul>
+            {% endif %}
+            <ul id="employees-{{ node.id }}" class="employees-list" style="display: none;"></ul>
+        </li>
+    {% endrecursetree %}
+</ul>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const toggles = document.querySelectorAll('.toggle');
+    toggles.forEach(toggle => {
+        toggle.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const employeesList = document.getElementById('employees-' + id);
+            if (employeesList.style.display === "none") {
+                fetch(`/employees/load-employees/${id}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        employeesList.innerHTML = '';
+                        data.forEach(employee => {
+                            const li = document.createElement('li');
+                            li.textContent = `${employee.full_name} - ${employee.position} (${employee.salary}) работает с ${employee.hire_date}`;
+                            employeesList.appendChild(li);
+                        });
+                        employeesList.style.display = "block";
+                    });
+            } else {
+                employeesList.style.display = "none";
+            }
+        });
+    });
+});
+</script>
+
+
+
+{% endblock %}

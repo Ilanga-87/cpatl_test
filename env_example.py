@@ -1,0 +1,10 @@
+"""
+DJANGO_SECRET_KEY=key
+SQL_ENGINE=django.db.backends.postgresql_psycopg2
+DATABASE=postgres
+DATABASE_NAME=postgres
+DATABASE_USER=postgres
+DATABASE_PASSWORD=password
+DATABASE_HOST=db
+DATABASE_PORT=5432
+"""
